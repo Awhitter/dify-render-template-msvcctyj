@@ -62,7 +62,7 @@ flowchart LR
 ### How It Works
 
 1. Click **Deploy to Render**. Render forks this template and applies [`render.yaml`](./render.yaml).
-2. Render pulls pinned `langgenius/dify-api:1.14.2` and `langgenius/dify-web:1.14.2`.
+2. Render pulls pinned `langgenius/dify-api:1.16.1` and `langgenius/dify-web:1.16.1`.
 3. First API deploy enables the Postgres `vector` extension, runs migrations, and mounts a 10 GB disk.
 4. Open the **`dify-web`** URL to create the admin account and configure model providers in the UI.
 5. Background jobs (indexing, workflows) run on `dify-worker` via Key Value / Celery.
@@ -116,6 +116,7 @@ curl -sS https://<your-dify-api>.onrender.com/health
 | `SECRET_KEY` | Auto-generated | App secret on `dify-api`; worker inherits it |
 | `MODE` | Wired | `api` on API, `worker` on worker |
 | `DEPLOY_ENV` | Wired | `PRODUCTION` |
+| `DB_TYPE` | Wired | Explicitly selects `postgresql` for Dify 1.16.1+ |
 | `MIGRATION_ENABLED` / `LOG_LEVEL` | Wired | API migrate + log level |
 | `CONSOLE_API_URL` / `SERVICE_API_URL` / `FILES_URL` / `INTERNAL_FILES_URL` | Wired | From `dify-api` public URL |
 | `CONSOLE_WEB_URL` / `APP_WEB_URL` | Wired | From `dify-web` public URL |
@@ -124,15 +125,18 @@ curl -sS https://<your-dify-api>.onrender.com/health
 | `REDIS_HOST` / `REDIS_PORT` / `CELERY_BROKER_URL` | Wired | From `dify-kv` |
 | `VECTOR_STORE` / `PGVECTOR_*` | Wired | `pgvector` on the same Postgres |
 | `STORAGE_TYPE` / `OPENDAL_SCHEME` / `OPENDAL_FS_ROOT` | Wired | Local disk storage under `/app/api/storage` |
+| `NEXT_PUBLIC_ENABLE_AGENT_V2` | Wired | `false`; Agent V2 needs the optional agent backend, local sandbox, plugin daemon, and dedicated SSRF proxy |
 
 No Apply-time secrets are required. Model provider keys are set in the Dify console after login.
+
+This template intentionally provides the five-service core Dify deployment. Dify 1.16.1's optional Agent V2 runtime is not enabled because its companion services and security boundary are not part of this Blueprint.
 
 ### Pin or float images
 
 ```yaml
 # render.yaml (dify-api / dify-worker / dify-web)
 image:
-  url: docker.io/langgenius/dify-api:1.14.2
+  url: docker.io/langgenius/dify-api:1.16.1
   # floating major channel is not recommended for production
 ```
 
