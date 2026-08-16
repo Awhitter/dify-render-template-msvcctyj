@@ -22,7 +22,7 @@ projects:
             plan: standard
             region: oregon
             image:
-              url: docker.io/langgenius/dify-api:1.14.2
+              url: docker.io/langgenius/dify-api:1.16.1
             healthCheckPath: /health
             autoDeployTrigger: off
             initialDeployHook: psql $DATABASE_URL -c 'CREATE EXTENSION IF NOT EXISTS vector;'
@@ -35,6 +35,8 @@ projects:
                 value: api
               - key: DEPLOY_ENV
                 value: PRODUCTION
+              - key: DB_TYPE
+                value: postgresql
               - key: MIGRATION_ENABLED
                 value: "true"
               - key: LOG_LEVEL
@@ -146,13 +148,15 @@ projects:
             plan: standard
             region: oregon
             image:
-              url: docker.io/langgenius/dify-api:1.14.2
+              url: docker.io/langgenius/dify-api:1.16.1
             autoDeployTrigger: off
             envVars:
               - key: MODE
                 value: worker
               - key: DEPLOY_ENV
                 value: PRODUCTION
+              - key: DB_TYPE
+                value: postgresql
               - key: SECRET_KEY
                 fromService:
                   name: dify-api
@@ -233,7 +237,7 @@ projects:
             plan: starter
             region: oregon
             image:
-              url: docker.io/langgenius/dify-web:1.14.2
+              url: docker.io/langgenius/dify-web:1.16.1
             autoDeployTrigger: off
             envVars:
               - key: CONSOLE_API_URL
@@ -246,6 +250,11 @@ projects:
                   name: dify-api
                   type: web
                   envVarKey: RENDER_EXTERNAL_URL
+              # Agent V2 requires the optional agent backend, local sandbox,
+              # plugin daemon, and dedicated SSRF proxy services. Keep the
+              # feature hidden in this five-service core deployment.
+              - key: NEXT_PUBLIC_ENABLE_AGENT_V2
+                value: "false"
 
           # Key Value (Celery broker + cache)
           - type: keyvalue
