@@ -66,15 +66,9 @@ projects:
                   type: web
                   envVarKey: RENDER_EXTERNAL_URL
               - key: CONSOLE_WEB_URL
-                fromService:
-                  name: dify-web
-                  type: web
-                  envVarKey: RENDER_EXTERNAL_URL
+                value: https://forge.katailyst.com
               - key: APP_WEB_URL
-                fromService:
-                  name: dify-web
-                  type: web
-                  envVarKey: RENDER_EXTERNAL_URL
+                value: https://forge.katailyst.com
               - key: DATABASE_URL
                 fromDatabase:
                   name: dify-db
