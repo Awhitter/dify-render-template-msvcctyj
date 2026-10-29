@@ -1,3 +1,5 @@
+> **HLT live deployment:** use [OPERATIONS.md](OPERATIONS.md) before syncing this repository. The core now pins Dify 1.18.0 and shared private storage. The upstream gallery guide below is retained as history; it is not the complete live topology.
+
 <div align="center">
 
 # Dify on Render

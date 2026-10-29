@@ -1,14 +1,16 @@
 # yaml-language-server: $schema=https://render.com/schema/render.yaml.json
 #
-# Dify on Render: one-click gallery template
+# HLT Dify on Render: pinned live core configuration (29 October 2026)
 # Repo: https://github.com/render-examples/dify-render-template
 # Upstream: https://github.com/langgenius/dify
 # Images: https://hub.docker.com/u/langgenius
 #
-# Pattern: image-wrapper (official langgenius/* images; no source build on Render)
+# Dify 1.18.0. Blueprint auto-sync stays paused until its proposed diff is reviewed.
+# Plugin daemon and dify-beat already exist outside this Blueprint; do not create duplicates.
+# See OPERATIONS.md for resource identities and restart/upgrade verification.
 
 previews:
-  generation: off
+  generation: "off"
 
 projects:
   - name: dify-render-template
@@ -22,9 +24,9 @@ projects:
             plan: standard
             region: oregon
             image:
-              url: docker.io/langgenius/dify-api:1.16.1
+              url: docker.io/langgenius/dify-api@sha256:0120970fb4ea59aa328d63b7dda635cccc071efb8aae470cd07115a026dbffd3
             healthCheckPath: /health
-            autoDeployTrigger: off
+            autoDeployTrigger: "off"
             initialDeployHook: psql $DATABASE_URL -c 'CREATE EXTENSION IF NOT EXISTS vector;'
             disk:
               name: dify-api-storage
@@ -137,9 +139,26 @@ projects:
               - key: STORAGE_TYPE
                 value: opendal
               - key: OPENDAL_SCHEME
-                value: fs
-              - key: OPENDAL_FS_ROOT
-                value: /app/api/storage
+                value: s3
+              # Shared private object storage; retain the existing live values on sync.
+              - key: OPENDAL_S3_ENDPOINT
+                sync: false
+              - key: OPENDAL_S3_REGION
+                value: auto
+              - key: OPENDAL_S3_BUCKET
+                sync: false
+              - key: OPENDAL_S3_ACCESS_KEY_ID
+                sync: false
+              - key: OPENDAL_S3_SECRET_ACCESS_KEY
+                sync: false
+              - key: PLUGIN_DAEMON_URL
+                sync: false
+              - key: PLUGIN_DAEMON_KEY
+                sync: false
+              - key: INNER_API_KEY_FOR_PLUGIN
+                sync: false
+              - key: PLUGIN_DIFY_INNER_API_URL
+                sync: false
 
           # Celery worker
           - type: worker
@@ -148,8 +167,8 @@ projects:
             plan: standard
             region: oregon
             image:
-              url: docker.io/langgenius/dify-api:1.16.1
-            autoDeployTrigger: off
+              url: docker.io/langgenius/dify-api@sha256:0120970fb4ea59aa328d63b7dda635cccc071efb8aae470cd07115a026dbffd3
+            autoDeployTrigger: "off"
             envVars:
               - key: MODE
                 value: worker
@@ -226,9 +245,26 @@ projects:
               - key: STORAGE_TYPE
                 value: opendal
               - key: OPENDAL_SCHEME
-                value: fs
-              - key: OPENDAL_FS_ROOT
-                value: /app/api/storage
+                value: s3
+              # Shared private object storage; retain the existing live values on sync.
+              - key: OPENDAL_S3_ENDPOINT
+                sync: false
+              - key: OPENDAL_S3_REGION
+                value: auto
+              - key: OPENDAL_S3_BUCKET
+                sync: false
+              - key: OPENDAL_S3_ACCESS_KEY_ID
+                sync: false
+              - key: OPENDAL_S3_SECRET_ACCESS_KEY
+                sync: false
+              - key: PLUGIN_DAEMON_URL
+                sync: false
+              - key: PLUGIN_DAEMON_KEY
+                sync: false
+              - key: INNER_API_KEY_FOR_PLUGIN
+                sync: false
+              - key: PLUGIN_DIFY_INNER_API_URL
+                sync: false
 
           # Web console (Next.js)
           - type: web
@@ -237,8 +273,8 @@ projects:
             plan: starter
             region: oregon
             image:
-              url: docker.io/langgenius/dify-web:1.16.1
-            autoDeployTrigger: off
+              url: docker.io/langgenius/dify-web@sha256:e55a6bf1addf109c3655567663f906624f0980061efed864e0f07d23c71fa385
+            autoDeployTrigger: "off"
             envVars:
               - key: CONSOLE_API_URL
                 fromService:
@@ -250,9 +286,8 @@ projects:
                   name: dify-api
                   type: web
                   envVarKey: RENDER_EXTERNAL_URL
-              # Agent V2 requires the optional agent backend, local sandbox,
-              # plugin daemon, and dedicated SSRF proxy services. Keep the
-              # feature hidden in this five-service core deployment.
+              # The plugin daemon is live; Agent V2 still needs its optional
+              # agent backend, sandbox and SSRF proxy. Keep it hidden.
               - key: NEXT_PUBLIC_ENABLE_AGENT_V2
                 value: "false"
 
@@ -268,6 +303,6 @@ projects:
           - name: dify-db
             plan: basic-256mb
             region: oregon
-            databaseName: dify
+            # Existing database identity is retained (live name: dify_20be).
             postgresMajorVersion: "16"
             ipAllowList: []
