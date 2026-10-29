@@ -6,7 +6,7 @@
 # Images: https://hub.docker.com/u/langgenius
 #
 # Dify 1.18.0. Blueprint auto-sync stays paused until its proposed diff is reviewed.
-# Plugin daemon and dify-beat already exist outside this Blueprint; do not create duplicates.
+# Plugin daemon, dify-beat and dify-sandbox exist outside this Blueprint; do not create duplicates.
 # See OPERATIONS.md for resource identities and restart/upgrade verification.
 
 previews:
@@ -130,6 +130,11 @@ projects:
                 fromDatabase:
                   name: dify-db
                   property: database
+              # Existing private sandbox connection; preserve secret and internal endpoint.
+              - key: CODE_EXECUTION_ENDPOINT
+                sync: false
+              - key: CODE_EXECUTION_API_KEY
+                sync: false
               - key: STORAGE_TYPE
                 value: opendal
               - key: OPENDAL_SCHEME
@@ -236,6 +241,11 @@ projects:
                 fromDatabase:
                   name: dify-db
                   property: database
+              # Existing private sandbox connection; preserve secret and internal endpoint.
+              - key: CODE_EXECUTION_ENDPOINT
+                sync: false
+              - key: CODE_EXECUTION_API_KEY
+                sync: false
               - key: STORAGE_TYPE
                 value: opendal
               - key: OPENDAL_SCHEME
@@ -280,8 +290,8 @@ projects:
                   name: dify-api
                   type: web
                   envVarKey: RENDER_EXTERNAL_URL
-              # The plugin daemon is live; Agent V2 still needs its optional
-              # agent backend, sandbox and SSRF proxy. Keep it hidden.
+              # Plugin daemon and workflow code sandbox are live. Agent V2 still needs
+              # its separate agent backend, shell sandbox and SSRF proxy. Keep it hidden.
               - key: NEXT_PUBLIC_ENABLE_AGENT_V2
                 value: "false"
 
